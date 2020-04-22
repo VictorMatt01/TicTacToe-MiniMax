@@ -27,6 +27,10 @@ player_color(min, o).
 all_possible_moves(P,Board,AllMoves) :-
     findall(Move, possible_move(P, Board, Move), AllMoves).
 
-possible_move(_,_,_).
+% possible_move(+PlayerColor, +Board, -PossibleMove)
+% this will replace the first n with PlayerCoclor, so this represents
+% a possible move
+possible_move(P,[n|Rest],[P|Rest]).
+possible_move(P,[X|Rest],[X|Rest2]) :- possible_move(P, Rest, Rest2).
 
 best_move(_,_,_,_).
