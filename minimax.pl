@@ -33,4 +33,24 @@ all_possible_moves(P,Board,AllMoves) :-
 possible_move(P,[n|Rest],[P|Rest]).
 possible_move(P,[X|Rest],[X|Rest2]) :- possible_move(P, Rest, Rest2).
 
-best_move(_,_,_,_).
+% best_mov(+MinMax, +AllMoves, -BestMove, -BestValue)
+% Chooses the next move.
+best_move(max, [], [], -2).
+best_move(min, [], [], +2).
+best_move(MinMax, [Move | RestMoves], BestMove, BestValue) :- 
+    eval_board(Move,Value),
+    best_move(MinMax, RestMoves, CurrentBestM, CurrentBestV),
+    compare_moves(MinMax, Move, Value, CurrentBestM, CurrentBestV, BestMove, BestValue).
+best_move(MinMax, [Move | RestMoves], BestMove, BestValue) :- 
+    best_move(MinMax, RestMoves, CurrentBestM, CurrentBestV),
+    change_max_min(MinMax, Other),
+    minmax_step(Other, Move, _, BottomBestV),
+    compare_moves(MinMax, Move, BottomBestV, CurrentBestM, CurrentBestV, BestMove, BestValue).
+
+eval_board(_,_).
+
+compare_moves(_, _, _, _,_,_,_).
+
+change_max_min(_,_).
+
+minmax_step(_,_,_,_).
