@@ -3,6 +3,16 @@
 
 :- module(minimax, [minimax/2]).
 
+% All win positions for tic-tac-toe
+win_pos(P, [P, P, P, _, _, _, _, _, _]).
+win_pos(P, [_, _, _, P, P, P, _, _, _]).
+win_pos(P, [_, _, _, _, _, _, P, P, P]).
+win_pos(P, [P, _, _, P, _, _, P, _, _]).
+win_pos(P, [_, P, _, _, P, _, _, P, _]).
+win_pos(P, [_, _, P, _, _, P, _, _, P]).
+win_pos(P, [P, _, _, _, P, _, _, _, P]).
+win_pos(P, [_, _, P, _, P, _, P, _, _]).
+
 
 % minimax(+Board, -BestMove)
 % this will match the next best move based on the current board
@@ -44,13 +54,30 @@ best_move(MinMax, [Move | RestMoves], BestMove, BestValue) :-
 best_move(MinMax, [Move | RestMoves], BestMove, BestValue) :- 
     best_move(MinMax, RestMoves, CurrentBestM, CurrentBestV),
     change_max_min(MinMax, Other),
-    minmax_step(Other, Move, _, BottomBestV),
+    minimax_step(Other, Move, _, BottomBestV),
     compare_moves(MinMax, Move, BottomBestV, CurrentBestM, CurrentBestV, BestMove, BestValue).
 
-eval_board(_,_).
+% eval_board(+Board, -Value)
+% this will evaluate the score of the playboard
+eval_board([],Value) :- Value is 0.
+eval_board(Board, Value) :- win_pos(x, Board), Value is 1,!.
+eval_board(Board, Value) :- win_pos(o, Board), Value is -1, !.
+eval_board(Board, Value) :- full_board(Board), Value is 0.
 
-compare_moves(_, _, _, _,_,_,_).
+full_board(Board) :- \+(member(n, Board)).
 
-change_max_min(_,_).
+% compare_moves(+MinMax, +MoveA, +ValueA, +MoveB, +ValueB, -BetterMove, -Bettervalue)
+% this will choose the move with the higher value
+compare_moves(max, MoveA, ValueA, _, ValueB, MoveA, ValueA) :-
+    ValueA >= ValueB.
+compare_moves(max, _, ValueA, MoveB, ValueB, MoveB, ValueB) :-
+    ValueA < ValueB.
+compare_moves(min, MoveA, ValueA, _, ValueB, MoveA, ValueA) :-
+	ValueA =< ValueB.
+compare_moves(min, _, ValueA, MoveB, ValueB, MoveB, ValueB) :-
+	ValueA > ValueB.
 
-minmax_step(_,_,_,_).
+% change_max_min(+MinOrMax, TheOther)
+% Changes the MinMax atom.
+change_max_min(max, min).
+change_max_min(min, max).
